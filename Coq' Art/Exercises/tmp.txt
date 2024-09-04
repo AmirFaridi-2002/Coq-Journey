@@ -1,0 +1,29 @@
+Fixpoint max_elem (t: Zbtree) : option Z :=
+  match t with
+  | leaf => None
+  | bnode r _ leaf => Some r
+  | bnode _ _ t2 => max_elem t2
+  end.
+
+
+
+Fixpoint delete_from_searchtree (n: Z) (t: Zbtree) : Zbtree :=
+  match t with
+  | leaf => leaf
+  | bnode r t1 t2 =>
+    match Z.compare n r with
+    | Lt => bnode r (delete_from_searchtree n t1) t2
+    | Gt => bnode r t1 (delete_from_searchtree n t2)
+    | Eq =>
+      match t1, t2 with
+      | leaf, _ => t2
+      | _, leaf => t1
+      | _, _ =>
+        match max_elem t1 with
+        | Some max_t1 => bnode max_t1 (delete_from_searchtree max_t1 t1) t2
+        | None => t  (* This case is theoretically unreachable *)
+        end
+      end
+    end
+  end.
+
